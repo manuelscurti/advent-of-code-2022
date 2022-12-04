@@ -1,8 +1,9 @@
 package io.ms.adventofcode.daytwo
 
 import scala.io.Source.fromFile
+import scala.util.Using
 
-object DayTwoPartOne {
+object DayTwoPartTwo {
 
   enum Move:
     case Rock
@@ -36,6 +37,12 @@ object DayTwoPartOne {
     (Player.B, Move.Rock) -> Integer.parseInt("000", 2),
     (Player.B, Move.Paper) -> Integer.parseInt("001", 2),
     (Player.B, Move.Scissor) -> Integer.parseInt("010", 2),
+  )
+
+  val rockPaperScissorWinningStrategy: Map[Move, Move] = Map[Move, Move](
+    Move.Rock -> Move.Paper,
+    Move.Paper -> Move.Scissor,
+    Move.Scissor -> Move.Rock
   )
 
   /**
@@ -85,9 +92,24 @@ object DayTwoPartOne {
       case "A" => Move.Rock
       case "B" => Move.Paper
       case "C" => Move.Scissor
-      case "X" => Move.Rock
-      case "Y" => Move.Paper
-      case "Z" => Move.Scissor
+    }
+  }
+
+  def parseExpectedOutcome(expectedOutcomeCode: String): Option[Player] = {
+    expectedOutcomeCode match {
+      case "X" => Some(Player.A)
+      case "Y" => None
+      case "Z" => Some(Player.B)
+    }
+  }
+
+  def makeMatchingStrategy(opponentMove: Move, expectedOutcome: Option[Player]): Move = {
+    val winningStrategyMove = rockPaperScissorWinningStrategy(opponentMove)
+    val losingStrategyMove = rockPaperScissorWinningStrategy(winningStrategyMove)
+    expectedOutcome match {
+      case Some(Player.A) => losingStrategyMove
+      case Some(Player.B) => winningStrategyMove
+      case None => opponentMove
     }
   }
 
@@ -96,7 +118,10 @@ object DayTwoPartOne {
     if (splittedLine.length != 2) {
       throw new IllegalArgumentException("Invalid round parsed")
     }
-    Round(parseMove(splittedLine(0)), parseMove(splittedLine(1)))
+    val expectedOutcome = parseExpectedOutcome(splittedLine(1))
+    val opponentMove = parseMove(splittedLine(0))
+    val myMove = makeMatchingStrategy(opponentMove, expectedOutcome)
+    Round(opponentMove, myMove)
   }
 
   def computeMyScore(lines: Iterator[String]): Int = {
@@ -109,13 +134,11 @@ object DayTwoPartOne {
 
   def main(args: Array[String]): Unit = {
 
-    val file = fromFile("src/main/resources/daytwo.data")
+    Using(fromFile("src/main/resources/daytwo.data")) { file => {
+      val myTotalScore = computeMyScore(file.getLines())
 
-    val myTotalScore = computeMyScore(file.getLines())
-
-    file.close()
-
-    println(s"My total score: $myTotalScore")
+      println(s"My total score: $myTotalScore")
+    }}
 
   }
 

@@ -1,6 +1,9 @@
 package io.ms.adventofcode.dayone
 
-import scala.io.Source._
+import java.io.{FileNotFoundException, IOException}
+import scala.io.Source.*
+import scala.util.Try
+import scala.util.Using
 
 object DayOnePartOne {
 
@@ -44,14 +47,12 @@ object DayOnePartOne {
 
   def main(args: Array[String]): Unit = {
 
-    val file = fromFile("src/main/resources/dayone.data")
+    Using(fromFile("src/main/resources/dayone.data")) { file => {
+      val wealthiestElf = searchWealthiestElf(file.getLines())
+      println(s"Wealthiest Elf ID: ${wealthiestElf.id}")
+      println(s"Wealthiest Elf Total Calories: ${wealthiestElf.totalCalories}")
+    }}
 
-    val wealthiestElf = searchWealthiestElf(file.getLines())
-
-    file.close()
-
-    println(s"Wealthiest Elf ID: ${wealthiestElf.id}")
-    println(s"Wealthiest Elf Total Calories: ${wealthiestElf.totalCalories}")
   }
 
 }

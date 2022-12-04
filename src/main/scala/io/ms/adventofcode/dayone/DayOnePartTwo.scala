@@ -1,7 +1,8 @@
 package io.ms.adventofcode.dayone
 
 import scala.collection.mutable
-import scala.io.Source._
+import scala.io.Source.*
+import scala.util.Using
 
 
 
@@ -56,15 +57,14 @@ object DayOnePartTwo {
 
   def main(args: Array[String]): Unit = {
 
-    val file = fromFile("src/main/resources/dayone.data")
+    Using(fromFile("src/main/resources/dayone.data")) { file => {
+      val wealthiestElves = searchWealthiestElf(file.getLines())
 
-    val wealthiestElves = searchWealthiestElf(file.getLines())
+      println(s"Total elves in the ranking: ${wealthiestElves.size}")
+      println(s"Wealthiest Elves Top 3: ${wealthiestElves}")
+      println(s"Wealthiest Elves Top 3 total calories: ${wealthiestElves.foldLeft(0)(_ + _.totalCalories)}")
+    }}
 
-    file.close()
-
-    println(s"Total elves in the ranking: ${wealthiestElves.size}")
-    println(s"Wealthiest Elves Top 3: ${wealthiestElves}")
-    println(s"Wealthiest Elves Top 3 total calories: ${wealthiestElves.foldLeft(0)(_ + _.totalCalories)}")
   }
 
 }
